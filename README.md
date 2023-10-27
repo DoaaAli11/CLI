@@ -1,7 +1,7 @@
 # CLI
 ## Command Line Interpreter
 This is simple project to simulate the operating system commands using ***Java***
-### These are the commands that our programe can execute them
+### These are the commands that our program can execute them
 - **echo**
     - Takes 1 argument and prints it.
     - Example: `echo Hello, World!`
