@@ -85,15 +85,15 @@ public class Terminal {
         return currentDirectory;
     }
 
-    public String cd(String args) {
+     public void cd(String args) {
         output = "";
-        // Change directory based on the provided argument (args)
-        if (args == null || args.trim().isEmpty()) {
-            // If no argument is provided, change the current directory to the home directory
-            currentDirectory = homeDirectory;
-        } else if (args.equalsIgnoreCase("..")) {
-            // Navigate up one directory level (if possible)
-            try {
+        try {
+            // Change directory based on the provided argument (args)
+            if (args == null || args.trim().isEmpty()) {
+                // If no argument is provided, change the current directory to the home directory
+                currentDirectory = homeDirectory;
+            } else if (args.equalsIgnoreCase("..")) {
+                // Navigate up one directory level (if possible)
                 File currentDir = new File(currentDirectory);
                 String parent = currentDir.getParent();
                 if (parent != null) {
@@ -101,27 +101,27 @@ public class Terminal {
                 } else {
                     output += "You are already at the root directory.\n";
                 }
-            } catch (Exception e) {
-                output += "An error occurred while navigating up the directory.\n";
-            }
-        } else {
-            // Change the directory based on the provided argument
-            Path resolvedPath;
-            if (Paths.get(args).isAbsolute()) {
-                // If it's absolute, use it as is
-                resolvedPath = Paths.get(args);
+                // Change the directory based on the provided argument
+            } else if (new File(args).isAbsolute()) {
+                File absoluteDir = new File(args);
+                if (absoluteDir.isDirectory()) {
+                   currentDirectory = absoluteDir.getCanonicalPath();
+                } else {
+                    output += "An error occurred while navigating up the directory.\n";
+                }
             } else {
-                // If it's relative, resolve it against the current directory
-                resolvedPath = Paths.get(currentDirectory).resolve(args);
+                File newDir = new File(currentDirectory, args);
+                if (newDir.exists() && newDir.isDirectory()) {
+                    currentDirectory = newDir.getCanonicalPath();
+                } else {
+                    System.out.println("Directory not found: " + args);
+                }
             }
-            File newDir = new File(resolvedPath.toUri());
-            if (newDir.isDirectory()) {
-                currentDirectory = newDir.getPath();
-            } else {
-                output += "Directory not found: " + args + '\n';
-            }
+        } catch (SecurityException e) {
+            System.out.println("Access denied to the directory: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("An error occurred: " + e.getMessage());
         }
-
         output += currentDirectory;
         return output;
     }
